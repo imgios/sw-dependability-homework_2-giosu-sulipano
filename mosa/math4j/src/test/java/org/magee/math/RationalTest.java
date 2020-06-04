@@ -9,9 +9,12 @@ import org.magee.math.Rational;
 
 public class RationalTest {
 
-    /** Test negate() method
+    /** test01 tests the subtract() and negate() methods.
+     * The operation computed is -1[(-1/-1)-(-1/-1)] but this is wrong.
+     * Subtract(long) contains a bug: it creates a Rational with -1 as denominator instead of using 1.
+     * The correct operation is -1[(-1/-1)-(-1/1)] = -2
+     * So, every operation done with Subtract(long) is wrong.
      *
-     * Op. computed: -1[(-1/-1)-(-1/-1)]
      * @throws Throwable
      */
   @Test
@@ -19,13 +22,18 @@ public class RationalTest {
       Rational rational0 = new Rational((-1L), (-1L));
       Rational rational1 = rational0.subtract((-1L));
       Rational rational2 = rational1.negate();
-      assertEquals(0.0, rational2.doubleValue(), 0.01);
+      //assertEquals(0.0, rational2.doubleValue(), 0.01); doesn't discover the bug
+      assertEquals("Operation result is wrong.", 2.0, rational2.doubleValue(), 0.01);
   }
 
     /**
-     * This method seems to test abs() and multiply(Rational r).
-     * Eager Test? If so, probably would be better the Extract Method refactoring.
+     * This method tests abs() and multiply(Rational r).
+     * Bugs found:
+     * 1. abs() doesn't compute correctly the absolute value of the denominator.
+     *    In fact, if denominator < 0 it returns +denominator instead of -denominator.
+     * 2. multiply(Rational) divides numerators instead of multiplying them.
      *
+     * Operation computed: |(-1/-1)| * (-1/-1) = 1
      * @throws Throwable
      */
   @Test
@@ -34,12 +42,14 @@ public class RationalTest {
       Rational rational1 = rational0.abs();
       Rational rational2 = rational1.multiply(rational0);
       assertEquals((-1L), rational2.numerator);
-      assertEquals((byte) (-1), rational1.byteValue());
+      assertEquals((byte) 1, rational1.byteValue());
   }
 
     /**
-     * test03() seems to test .inverse() method.
-     * Assertion Roulette? If any assertion fails would be hard to detect which one is the faulty one.
+     * test03() tests .negate() and .inverse() methods.
+     * No bugs found in the production class.
+     *
+     * Op. computed: [-1(-2685/-2685)]^(-1) = -2685/2685 = -1
      *
      * @throws Throwable
      */
@@ -54,8 +64,9 @@ public class RationalTest {
   }
 
     /**
-     * This method test multiply(long scalar).
+     * This method tests multiply(long scalar).
      * The test method seems good because catch that multiply is trying to create a number with 0 as denominator.
+     *
      * @throws Throwable
      */
   @Test
@@ -77,7 +88,7 @@ public class RationalTest {
 
     /**
      * This method tests divide(Rational r) with positive numbers.
-     * Seems ok, will be checked again in the next session.
+     * There's a problem, divide() (that is fine) calls multiply(Rational r) which is bugged!
      *
      * @throws Throwable
      */
@@ -88,12 +99,13 @@ public class RationalTest {
       float float0 = rational1.floatValue();
       assertEquals(0.0F, float0, 0.01F);
       assertEquals(0.4713781F, rational0.floatValue(), 0.01F);
-      assertEquals(943805L, rational1.denominator);
+      //assertEquals(943805L, rational1.denominator);
+      assertEquals(943805L, rational1.numerator);
   }
 
     /**
      * This method tests divide(Rational r) with negative numbers.
-     * The method tested seems fine, will be checked again in the next session.
+     * Same as test05, divide uses multiply(Rational r) that's bugged.
      *
      * Op. computed: (-1/-1)/(-1/-1) = 1
      * @throws Throwable
@@ -124,7 +136,8 @@ public class RationalTest {
 
     /**
      * This one tests add(integer) method.
-     * The test success because it catches the add method trying to add 0/0.
+     * The add() method has a bug: when converting a integer into Rational it uses 0 as denonimator instead of 1.
+     * So, it will always raise a NumberFormatException.
      * @throws Throwable
      */
   @Test
@@ -183,7 +196,7 @@ public class RationalTest {
      * @throws Throwable
      */
   @Test
-  public void test10()  throws Throwable  {
+  public void test10()  throws Throwable {
       Rational rational0 = new Rational(1L, 1L);
       // Undeclared exception!
       try { 
@@ -196,5 +209,16 @@ public class RationalTest {
          //
          verifyException("org.magee.math.Rational", e);
       }
+  }
+
+    /**
+     * This test method tests intValue() method.
+     * It checks if the result get successful casted.
+     * @throws Throwable
+     */
+  @Test
+  public void testIntValue() throws Throwable {
+      Rational rational = new Rational(10L, 2L);
+      assertEquals("Integer result is wrong.", 5, rational.intValue());
   }
 }
