@@ -1,11 +1,8 @@
 package org.magee.math;
 
-import net.bytebuddy.implementation.bytecode.Throw;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import static org.evosuite.runtime.EvoAssertions.*;
-import org.junit.runner.RunWith;
-import org.magee.math.Rational;
 
 public class RationalTest {
 
