@@ -69,7 +69,7 @@ public class OptionTest {
 
     /**
      * This method tests equals() method.
-     * There's a problem in the method, because it return true when comparing null and "" (empty string) of two different instances.
+     * There's a problem in the method, because it returns true when comparing null and "" (empty string) of two different instances.
      * So, we can say that it's buggy, it should return true in this case.
      * @throws Throwable
      */
@@ -124,7 +124,7 @@ public class OptionTest {
 
     /**
      * This test method should spot the bug of equals().
-     * Seems it isn't able to recognize two different longOpt.
+     * Seems like it isn't able to recognize two different longOpt.
      *
      * @throws Throwable
      */
